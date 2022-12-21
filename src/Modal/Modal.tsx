@@ -1,29 +1,33 @@
-import React, { Component, ReactNode } from "react";
+import React, { Component } from "react";
 import { CSSTransition } from "react-transition-group";
 
 import { Close } from "../Close";
 
 import "./style.css";
 
-interface State {
-  opened: boolean;
-}
-
 interface Props {
   opened: boolean;
   onClose: () => void;
 }
 
-export class Modal extends Component<Props, State> {
-  public readonly state: State = {
-    opened: false
-  };
+export class Modal extends Component<Props> {
+  modalContentRef: React.RefObject<HTMLDivElement>;
 
-  public static getDerivedStateFromProps(props: Props, state: State): State {
-    return { opened: props.opened };
+  constructor(props: Props) {
+    super(props);
+
+    this.modalContentRef = React.createRef();
+    this.onPressModal = this.onPressModal.bind(this);
   }
 
-  public render(): ReactNode {
+  onPressModal(event: React.MouseEvent<HTMLDivElement>) {
+    const target = event.target as HTMLDivElement;
+    if (!this.modalContentRef.current?.contains(target)) {
+      this.props.onClose();
+    }
+  }
+
+  render() {
     return (
       <CSSTransition
         classNames={{
@@ -34,11 +38,11 @@ export class Modal extends Component<Props, State> {
           exitActive: "modal_exit-active",
           exitDone: "modal_exit-done"
         }}
-        in={this.state.opened}
+        in={this.props.opened}
         timeout={300}
       >
-        <div className="modal">
-          <div className="modal--content">
+        <div className="modal" onClick={this.onPressModal}>
+          <div className="modal--content" ref={this.modalContentRef}>
             <Close onClick={this.props.onClose} />
 
             {this.props.children}

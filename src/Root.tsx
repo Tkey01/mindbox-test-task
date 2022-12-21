@@ -4,37 +4,41 @@ import { Modal } from "./Modal";
 import { Invites } from "./Invites";
 
 interface State {
-  invites: string[];
-  opened: boolean;
+  modalOpened: boolean;
 }
 
-export class Root extends Component<{}, State> {
-  public readonly state: State = {
-    invites: [],
-    opened: false
+interface Props {}
+
+export class Root extends Component<Props, State> {
+  constructor(props: Props) {
+    super(props);
+
+    this.onModalOpen = this.onModalOpen.bind(this);
+    this.onModalClose = this.onModalClose.bind(this);
+  }
+
+  readonly state: State = {
+    modalOpened: false
   };
 
-  public toggle(opened: boolean) {
-    (this.state as any).opened = opened;
+  setModalOpen(modalOpened: boolean) {
+    this.setState((prevState) => ({ ...prevState, modalOpened }));
   }
 
-  public invite(name: string) {
-    this.setState(({ invites }) => {
-      invites.push(name);
-
-      return { invites };
-    });
+  onModalOpen() {
+    this.setModalOpen(true);
   }
 
-  public render() {
+  onModalClose() {
+    this.setModalOpen(false);
+  }
+
+  render() {
     return (
       <>
-        <button onClick={() => this.toggle(true)}>Open invites list</button>
-        <Modal opened={this.state.opened} onClose={() => this.toggle(false)}>
-          <Invites
-            invites={this.state.invites}
-            onAdd={this.invite.bind(this)}
-          />
+        <button onClick={this.onModalOpen}>Open invites list</button>
+        <Modal opened={this.state.modalOpened} onClose={this.onModalClose}>
+          <Invites />
         </Modal>
       </>
     );
